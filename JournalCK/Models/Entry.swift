@@ -9,30 +9,19 @@
 import Foundation
 import CloudKit
 
+struct EntryConstants {
+    static let typeKey = "Entry"
+    static let titleKey = "title"
+    static let bodyKey = "body"
+    static let timestampKey = "timestamp"
+    static let recordIDKey = "ckRecordID"
+}
+
 class Entry {
     
-    struct EntryConstants {
-        static let TypeKey = "Entry"
-        static let TitleKey = "title"
-        static let BodyKey = "body"
-        static let TimestampKey = "timestamp"
-        static let recordType = "ckRecordID"
-    }
-    
-    var cloudKitRecord: CKRecord {
-        
-        let record = CKRecord(recordType: EntryConstants.TypeKey)
-        
-        record.setValue(title, forKey: EntryConstants.TitleKey)
-        record.setValue(bodyText, forKey: EntryConstants.BodyKey)
-        record.setValue(timestamp, forKey: EntryConstants.TimestampKey)
-        record.setValue(ckRecordID, forKey: EntryConstants.recordType)
-        
-        return record
-    }
     
     init?(record: CKRecord) {
-        guard let title = record[EntryConstants.TitleKey] as? String, let bodyText = record[EntryConstants.BodyKey] as? String, let timestamp = record[EntryConstants.TimestampKey] as? Date, let ckRecordID = record[EntryConstants.recordType] as? CKRecord.ID else {return nil}
+        guard let title = record[EntryConstants.titleKey] as? String, let bodyText = record[EntryConstants.bodyKey] as? String, let timestamp = record[EntryConstants.timestampKey] as? Date, let ckRecordID = record[EntryConstants.recordIDKey] as? CKRecord.ID else {return nil}
         self.title = title
         self.bodyText = bodyText
         self.timestamp = timestamp
@@ -53,4 +42,11 @@ class Entry {
     
 }
 
-
+extension CKRecord {
+    convenience init(entry: Entry) {
+        self.init(recordType: EntryConstants.recordIDKey, recordID: entry.ckRecordID)
+        self.setValue(entry.title, forKey: EntryConstants.titleKey)
+        self.setValue(entry.bodyText, forKey: EntryConstants.bodyKey)
+        self.setValue(entry.timestamp, forKey: EntryConstants.timestampKey)
+    }
+}
